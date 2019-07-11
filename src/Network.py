@@ -18,20 +18,40 @@ class Network:
     def Create_Neurons(self, layer_list):
         layer = []
         for i in range(self.layers_num):
-            if(layer_list[i] == "sigmoid"):
+            if(len(layer_list) != 1):
+                if(layer_list[i] == "sigmoid"):
+                    layer.append(Neuron.Sigmoid_Neuron())
+            else:
                 layer.append(Neuron.Sigmoid_Neuron)
         
         return layer
 
     #feed the input data a through the network and returns the prediction
     def Feed_Forward(self, a):
-        for i in range(self.layers_num):
-            a = self.neuron[i].output(a, self.weight[i], self.bias)
+        for n, w, b in zip(self.neuron, self.weight, self.bias):
+            a = n.output(a, w, b)
         
         return a
 
-    def GSD():
+    def GSD(self, train_data, epochs, learning_rate, mini_batch_size):
+        n = len(train_data)
+        for i in range(epochs):
+            mini_batch = [train_data[k:k+mini_batch_size] for k in range(0, n, mini_batch_size)]
+            for batch in mini_batch:
+                nabla_b = [np.zeros(b.shape) for b in self.bias]
+                nabla_w = [np.zeros(w.shape) for w in self.weight]
+                #x is the input data, y is the expected output
+                for x, y in batch:
+                    #gets the gradient for the spcific training data
+                    delta_nb, delta_nw = self.backprop(x, y)
+                    nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nb)]
+                    nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nw)]
 
-    
+                self.bias = [b - (learning_rate/mini_batch_size) * nb for b, nb in zip(self.bias, nabla_b)]
+                self.weight = [w - (learning_rate/mini_batch_size) * nw for w, nw in zip(self.weight, nabla_w)]
 
-    
+net = Network([2,3])
+
+a = np.array([[1],[1]])
+
+print(net.Feed_Forward(a))

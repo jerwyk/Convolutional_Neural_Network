@@ -43,12 +43,15 @@ class Network:
                 #x is the input data, y is the expected output
                 for x, y in batch:
                     #gets the gradient for the spcific training data
-                    delta_nb, delta_nw = self.backprop(x, y)
+                    delta_nb, delta_nw = self.Backprop(x, y)
                     nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nb)]
                     nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nw)]
 
                 self.bias = [b - (learning_rate/mini_batch_size) * nb for b, nb in zip(self.bias, nabla_b)]
                 self.weight = [w - (learning_rate/mini_batch_size) * nw for w, nw in zip(self.weight, nabla_w)]
+    
+    def Backprop():
+        pass
 
 net = Network([2,3])
 

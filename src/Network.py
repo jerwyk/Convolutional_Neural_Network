@@ -52,12 +52,29 @@ class Network:
     
     def Backprop(self, x, y):
 
+        nb = [np.zeros(b.shape) for b in self.bias]
+        nw = [np.zeros(w.shape) for w in self.weight]
+
         a = [x]
         z = []
 
         for n, w, b in zip(self.neuron, self.weight, self.bias):
             z.append(np.dot(w, a[-1]) + b)
             a.append(n.Activation(z[-1]))
+
+        delta = [(a[-1] - y) * self.neuron[-1].Differentiate(z[-1])]
+        nb[-1] = delta
+        nw[-1] = np.dot(delta, a[-2].transpose())
+
+        for i in range(2, self.layers_num):
+            delta = [np.dot(self.weight[-i + 1].transpose(), delta) * self.neuron[-i].Differentiate(z[-i])] + delta
+            nb[-i] = delta
+            nw[-i] = np.dot(delta, a[-(i + 1)].transpose())
+
+
+        return (nb, nw)
+
+        
             
 net = Network([2,3])
 

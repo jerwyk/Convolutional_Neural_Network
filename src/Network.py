@@ -29,7 +29,7 @@ class Network:
     #feed the input data a through the network and returns the prediction
     def Feed_Forward(self, a):
         for n, w, b in zip(self.neuron, self.weight, self.bias):
-            a = n.output(a, w, b)
+            a = n.Forward(a, w, b)
         
         return a
 
@@ -50,9 +50,15 @@ class Network:
                 self.bias = [b - (learning_rate/mini_batch_size) * nb for b, nb in zip(self.bias, nabla_b)]
                 self.weight = [w - (learning_rate/mini_batch_size) * nw for w, nw in zip(self.weight, nabla_w)]
     
-    def Backprop():
-        pass
+    def Backprop(self, x, y):
 
+        a = [x]
+        z = []
+
+        for n, w, b in zip(self.neuron, self.weight, self.bias):
+            z.append(np.dot(w, a[-1]) + b)
+            a.append(n.Activation(z[-1]))
+            
 net = Network([2,3])
 
 a = np.array([[1],[1]])

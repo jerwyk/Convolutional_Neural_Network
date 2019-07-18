@@ -63,7 +63,8 @@ class Network:
         z = []
 
         for n, w, b in zip(self.neuron, self.weight, self.bias):
-            z.append(np.dot(w, a[-1]) + b)
+            tmp = np.dot(w, a[-1])
+            z.append(tmp + b)
             a.append(n.Activation(z[-1]))
 
         delta = [(a[-1] - y) * self.neuron[-1].Differentiate(z[-1])]
@@ -71,7 +72,7 @@ class Network:
         nw[-1] = np.dot(delta, a[-2].transpose())
 
         for i in range(2, self.layers_num):
-            delta = [np.dot(self.weight[-i + 1].transpose(), delta) * self.neuron[-i].Differentiate(z[-i])] + delta
+            delta = [np.dot(self.weight[-i + 1].transpose(), delta) * self.neuron[-i].Differentiate(z[-i])]
             nb[-i] = delta
             nw[-i] = np.dot(delta, a[-(i + 1)].transpose())
 
@@ -84,7 +85,12 @@ net = Network([2,3,2])
 
 a = np.array([[1],[1]])
 
-data = [(np.ndarray([1,1]), 1), (np.ndarray([2,2]), 2)]
+x1 = np.array([[1],[1]])
+x2 = np.array([[2],[2]])
+y1 = np.array([[1],[0]])
+y2 = np.array([[0],[1]])
+
+data = [(x1, y1), (x2, y2)]
 
 net.SGD(data, 2, 0.00001, 1)
 

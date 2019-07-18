@@ -20,9 +20,11 @@ class Network:
         for i in range(self.layers_num):
             if(len(layer_list) != 1):
                 if(layer_list[i] == "sigmoid"):
-                    layer.append(Neuron.Sigmoid_Neuron())
+                    n = Neuron.Sigmoid_Neuron()
+                    layer.append(n)
             else:
-                layer.append(Neuron.Sigmoid_Neuron)
+                n = Neuron.Sigmoid_Neuron()
+                layer.append(n)
         
         return layer
 
@@ -33,7 +35,7 @@ class Network:
         
         return a
 
-    def GSD(self, train_data, epochs, learning_rate, mini_batch_size):
+    def SGD(self, train_data, epochs, learning_rate, mini_batch_size):
         n = len(train_data)
         for i in range(epochs):
             mini_batch = [train_data[k:k+mini_batch_size] for k in range(0, n, mini_batch_size)]
@@ -42,13 +44,15 @@ class Network:
                 nabla_w = [np.zeros(w.shape) for w in self.weight]
                 #x is the input data, y is the expected output
                 for x, y in batch:
-                    #gets the gradient for the spcific training data
+                    #gets the gradient for the specific training data
                     delta_nb, delta_nw = self.Backprop(x, y)
                     nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nb)]
                     nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nw)]
 
                 self.bias = [b - (learning_rate/mini_batch_size) * nb for b, nb in zip(self.bias, nabla_b)]
                 self.weight = [w - (learning_rate/mini_batch_size) * nw for w, nw in zip(self.weight, nabla_w)]
+            
+            print("epoch " + i + " compeleted.")
     
     def Backprop(self, x, y):
 
@@ -76,8 +80,12 @@ class Network:
 
         
             
-net = Network([2,3])
+net = Network([2,3,2])
 
 a = np.array([[1],[1]])
+
+data = [(np.ndarray([1,1]), 1), (np.ndarray([2,2]), 2)]
+
+net.SGD(data, 2, 0.00001, 1)
 
 print(net.Feed_Forward(a))

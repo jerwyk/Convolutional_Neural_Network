@@ -35,8 +35,11 @@ class Network:
         
         return a
 
-    def SGD(self, train_data, epochs, learning_rate, mini_batch_size):
+    def SGD(self, train_data, epochs, learning_rate, mini_batch_size, test_data = 0):
         n = len(train_data)
+        if(test_data):
+            n_test = len(test_data)
+
         for i in range(epochs):
             mini_batch = [train_data[k:k+mini_batch_size] for k in range(0, n, mini_batch_size)]
             for batch in mini_batch:
@@ -49,10 +52,12 @@ class Network:
                     nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nb)]
                     nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nw)]
 
-                self.bias = [b - (learning_rate/mini_batch_size) * nb for b, nb in zip(self.bias, nabla_b)]
-                self.weight = [w - (learning_rate/mini_batch_size) * nw for w, nw in zip(self.weight, nabla_w)]
-            
-            if((i+1) % 10 == 0):
+                self.bias = [b - (learning_rate/len(mini_batch)) * nb for b, nb in zip(self.bias, nabla_b)]
+                self.weight = [w - (learning_rate/len(mini_batch)) * nw for w, nw in zip(self.weight, nabla_w)]
+        
+            if(test_data):
+                print("epoch %d compeleted: %d / %d." % (i, self.validate(test_data), n_test))
+            else:
                 print("epoch %d compeleted." % i)
     
     def Backprop(self, x, y):
@@ -61,40 +66,32 @@ class Network:
         nw = [np.zeros(w.shape) for w in self.weight]
 
         a = [x]
-        z = []
+        zs = []
 
         for n, w, b in zip(self.neuron, self.weight, self.bias):
-            tmp = np.dot(w, a[-1])
-            z.append(tmp + b)
-            a.append(n.Activation(z[-1]))
+            z = np.dot(w, a[-1]) + b
+            zs.append(z)
+            a.append(n.Activation(z))
 
-        delta = (a[-1] - y) * self.neuron[-1].Differentiate(z[-1])
+        delta = (a[-1] - y) * self.neuron[-1].Differentiate(zs[-1])
         nb[-1] = delta
         nw[-1] = np.dot(delta, a[-2].transpose())
 
         for i in range(2, self.layers_num):
-            delta = np.dot(self.weight[-i + 1].transpose(), delta) * self.neuron[-i].Differentiate(z[-i])
+            delta = np.dot(self.weight[-i + 1].transpose(), delta) * self.neuron[-i].Differentiate(zs[-i])
             nb[-i] = delta
             nw[-i] = np.dot(delta, a[-(i + 1)].transpose())
 
 
         return (nb, nw)
-
+    
+    def validate(self, test_data):
+        suc = 0
+        for nx, ny in test_data:
+          re = self.feedforward(nx)
+          out = np.unravel_index(re.argmax(), re.shape)
+          if(out[0] == ny):
+            suc += 1
         
-            
-net = Network([2,3,15,5 ,2])
+        return suc
 
-a = np.array([[1],[1]])
-b = np.array([[9],[9]])
-
-x1 = np.array([[1],[1]])
-x2 = np.array([[9],[9]])
-y1 = np.array([[1],[0]])
-y2 = np.array([[0],[1]])
-
-data = [(x1, y1), (x2, y2)]
-
-net.SGD(data, 100, 0.001, 2)
-
-print(net.Feed_Forward(a))
-print(net.Feed_Forward(b))

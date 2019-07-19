@@ -52,7 +52,8 @@ class Network:
                 self.bias = [b - (learning_rate/mini_batch_size) * nb for b, nb in zip(self.bias, nabla_b)]
                 self.weight = [w - (learning_rate/mini_batch_size) * nw for w, nw in zip(self.weight, nabla_w)]
             
-            print("epoch " + i + " compeleted.")
+            if((i+1) % 10 == 0):
+                print("epoch %d compeleted." % i)
     
     def Backprop(self, x, y):
 
@@ -67,12 +68,12 @@ class Network:
             z.append(tmp + b)
             a.append(n.Activation(z[-1]))
 
-        delta = [(a[-1] - y) * self.neuron[-1].Differentiate(z[-1])]
+        delta = (a[-1] - y) * self.neuron[-1].Differentiate(z[-1])
         nb[-1] = delta
         nw[-1] = np.dot(delta, a[-2].transpose())
 
         for i in range(2, self.layers_num):
-            delta = [np.dot(self.weight[-i + 1].transpose(), delta) * self.neuron[-i].Differentiate(z[-i])]
+            delta = np.dot(self.weight[-i + 1].transpose(), delta) * self.neuron[-i].Differentiate(z[-i])
             nb[-i] = delta
             nw[-i] = np.dot(delta, a[-(i + 1)].transpose())
 
@@ -81,17 +82,19 @@ class Network:
 
         
             
-net = Network([2,3,2])
+net = Network([2,3,15,5 ,2])
 
 a = np.array([[1],[1]])
+b = np.array([[9],[9]])
 
 x1 = np.array([[1],[1]])
-x2 = np.array([[2],[2]])
+x2 = np.array([[9],[9]])
 y1 = np.array([[1],[0]])
 y2 = np.array([[0],[1]])
 
 data = [(x1, y1), (x2, y2)]
 
-net.SGD(data, 2, 0.00001, 1)
+net.SGD(data, 100, 0.001, 2)
 
 print(net.Feed_Forward(a))
+print(net.Feed_Forward(b))
